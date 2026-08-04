@@ -29,10 +29,10 @@ export const config = createEnv({
 
 	client: {
 		// App
-		NEXT_PUBLIC_APP_URL: z.url().default("http://localhost:3000"),
+		NEXT_PUBLIC_APP_URL: z.string().default("http://localhost:3000"),
 
 		// CDN
-		NEXT_PUBLIC_CDN_URL: z.url().default("/"),
+		NEXT_PUBLIC_CDN_URL: z.string().default("/"),
 	},
 
 	experimental__runtimeEnv: {
