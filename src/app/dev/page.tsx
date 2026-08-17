@@ -15,7 +15,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/client/gsap";
+import { gsap, ScrollTrigger, SplitText, useGSAP } from "@/lib/client/gsap";
 
 export default function Page() {
 	const scope = useRef<HTMLDivElement>(null);
@@ -206,6 +206,84 @@ export default function Page() {
 		});
 	});
 
+	useGSAP(() => {
+		const split = SplitText.create(".split-heading", {
+			type: "lines",
+			mask: "lines",
+			autoSplit: true,
+		});
+
+		const splitContent = SplitText.create(".split-content", {
+			type: "words, lines",
+			autoSplit: true,
+		});
+
+		gsap.from(split.lines, {
+			scrollTrigger: {
+				trigger: ".split-container",
+				start: "top bottom",
+				toggleActions: "restart none none reset",
+			},
+			y: 400,
+			rotation: 15,
+			duration: 1.2,
+			ease: "power2.out",
+		});
+
+		gsap.from(".split-underline", {
+			scrollTrigger: {
+				trigger: ".split-container",
+				start: "top bottom",
+				toggleActions: "restart none none reset",
+			},
+			width: 0,
+			delay: 0.8,
+			duration: 1.2,
+			ease: "power2.out",
+		});
+
+		gsap.from(splitContent.words, {
+			scrollTrigger: {
+				trigger: ".split-container",
+				start: "top bottom",
+				toggleActions: "restart none none reset",
+			},
+			opacity: 0,
+			filter: "blur(6px)",
+			duration: 1.2,
+			stagger: {
+				amount: 4,
+			},
+			ease: "power2.out",
+			onComplete: () => {
+				const tl = gsap.timeline({
+					scrollTrigger: {
+						trigger: ".split-container",
+						start: "center center",
+						end: "bottom top",
+						toggleActions: "play none none reverse",
+					},
+				});
+
+				tl.to(splitContent.lines, {
+					y: -60,
+					rotation: -1,
+					duration: 0.45,
+					stagger: { amount: 0.4 },
+					ease: "back.inOut",
+				}).to(splitContent.lines, {
+					y: () => window.innerHeight,
+					x: () => gsap.utils.random(-40, 40),
+					rotation: () => gsap.utils.random(-15, 15),
+					opacity: 0,
+					duration: 0.8,
+					stagger: { amount: 0.4, from: "random" },
+					ease: "power4.in",
+				});
+			},
+		});
+	});
+
 	return (
 		<main className="w-full flex flex-col gap-16 overflow-x-hidden text-[#fffce1]">
 			<div className="p-16 flex flex-col gap-16">
@@ -215,28 +293,6 @@ export default function Page() {
 					<div className="size-25 bg-amber-500 rounded-xl border-2 box" />
 					<div className="size-25 bg-blue-500 rounded-xl border-2 box" />
 				</div>
-
-				{/* <div className="text-xl border-4 border-[#fffce1] p-8 rounded-lg">
-					<p className="text-2xl font-semibold pb-4">Topics learned:</p>
-					<ul className="list-disc ml-8">
-						<li>
-							Use of
-							<span className="italic mx-1">gsap.to()</span>
-							method.
-						</li>
-						<li>Targeting multiple elements.</li>
-						<li>Easing tweens.</li>
-						<li>Staggering multiple elements.</li>
-						<li>3 different types of delays.</li>
-						<li>Using functions for CSS properties for custom behavior.</li>
-						<li>Responsive design using window resize observer.</li>
-						<li>
-							Use of <span className="italic mx-1">useGSAP</span> hook, scope,
-							dependencies, and
-							<span className="italic mx-1">revertOnUpdate.</span>
-						</li>
-					</ul>
-				</div> */}
 
 				<div className="flex flex-col gap-8">
 					<h1 className="text-3xl  font-semibold">Timeline</h1>
@@ -357,7 +413,7 @@ export default function Page() {
 
 			<div className="p-16 flex flex-col gap-16">
 				<div className="min-h-svh">
-					<h1 className="text-3xl  font-semibold">Parallax</h1>
+					<h1 className="text-3xl font-semibold">Parallax</h1>
 
 					<div
 						className="grid md:grid-cols-3 gap-16 py-40"
@@ -410,7 +466,30 @@ export default function Page() {
 					</div>
 				</div>
 
-				<div className="h-svh"></div>
+				<div className="overflow-hidden">
+					<div className="min-h-svh flex flex-col gap-8 split-container">
+						<span className="relative inline-block w-fit">
+							<h1 className="text-5xl font-semibold split-heading leading-relaxed text-white">
+								Split Text Plugin
+							</h1>
+							<span className="absolute inset-0 border-b-2 border-white -translate-y-1 split-underline" />
+						</span>
+						<p className="text-3xl text-white split-content leading leading-relaxed">
+							Love is far more than the fleeting rush of infatuation often
+							portrayed in fiction; it is a profound, active choice made day
+							after day. At its core, it is the willingness to deeply understand
+							and accept another person, embracing their imperfections as
+							readily as their strengths. True love acts as both an anchor and a
+							sail—grounding us in moments of hardship while encouraging us to
+							grow into our best selves. It demands vulnerability, requiring us
+							to strip away our defenses, yet it rewards that bravery with a
+							profound sense of belonging and connection. Ultimately, love is
+							not just a passive feeling that washes over you, but a continuous
+							series of actions, patience, and commitments that build a shared
+							reality rooted in mutual respect and empathy.
+						</p>
+					</div>
+				</div>
 			</div>
 		</main>
 	);
